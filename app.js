@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app); // Express 서버로 HTTP 서버 생성
 const io = new Server(server, {
 	cors: {
-		origin: process.env.CORS_URL, // 허용할 클라이언트 도메인
+		// origin: process.env.CORS_URL, // 허용할 클라이언트 도메인
 		methods: ['GET', 'POST'], // 허용할 HTTP 메서드
 		credentials: true, // 인증 정보(쿠키 등)를 포함할지 여부
 	},
@@ -71,27 +71,27 @@ io.on('connect', (socket) => {
 	});
 });
 
-// 컴퓨터 다운시 브라우저 종료 명령어
-process.on('SIGINT', async () => {
-	if (browser) await closeBrowser();
-	if (crawlingIntervalId) clearInterval(crawlingIntervalId);
-	process.exit(0);
-});
+// // 컴퓨터 다운시 브라우저 종료 명령어
+// process.on('SIGINT', async () => {
+// 	if (browser) await closeBrowser();
+// 	if (crawlingIntervalId) clearInterval(crawlingIntervalId);
+// 	process.exit(0);
+// });
 
 // 주기적 크롤링 시작
-const startCrawling = () => {
-	crawlingIntervalId = setInterval(async () => {
-		stockObj = await crawl();
-		io.emit('stock_data', stockObj);
-	}, reloadInterval);
+// const startCrawling = () => {
+// 	crawlingIntervalId = setInterval(async () => {
+// 		stockObj = await crawl();
+// 		io.emit('stock_data', stockObj);
+// 	}, reloadInterval);
 
-	io.on('disconnect', () => clearInterval(crawlingIntervalId));
-};
+// 	io.on('disconnect', () => clearInterval(crawlingIntervalId));
+// };
 
 // 서버 시작
 const PORT = 3001;
 server.listen(PORT, async () => {
 	console.log(`Server running on http://localhost:${PORT}`);
-	await initializeBrowser(); // 브라우저 초기화
-	startCrawling();
+	// await initializeBrowser(); // 브라우저 초기화
+	// startCrawling();
 });
