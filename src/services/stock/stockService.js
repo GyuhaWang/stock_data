@@ -5,6 +5,7 @@ let browser, page; // Puppeteer 브라우저와 페이지를 관리
 
 const initializeBrowser = async () => {
 	browser = await puppeteer.launch({
+		executablePath: process.env.CHROME_URL,
 		headless: true,
 		args: ['--no-sandbox', '--disable-setuid-sandbox'],
 	});
