@@ -30,8 +30,7 @@ let todayUserCount = 0;
 
 let stockData = null;
 let news = [];
-schedule.scheduleJob('0 7 * * *', async () => {
-	console.log('아침 7시: API 데이터를 가져옵니다.');
+schedule.scheduleJob('1 4 * * *', async () => {
 	stockData = await getPolygonIoPreviousClose();
 	news = await getPolygonIoNews();
 });
@@ -40,6 +39,7 @@ app.use(
 	'/stock',
 	(req, res, next) => {
 		req.stockData = stockData;
+		req.news = news;
 		next();
 	},
 	stockRoutes
