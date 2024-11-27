@@ -72,11 +72,11 @@ io.on('connect', (socket) => {
 });
 
 // 컴퓨터 다운시 브라우저 종료 명령어
-process.on('SIGINT', async () => {
-	if (browser) await closeBrowser();
-	if (crawlingIntervalId) clearInterval(crawlingIntervalId);
-	process.exit(0);
-});
+// process.on('SIGINT', async () => {
+// 	if (browser) await closeBrowser();
+// 	if (crawlingIntervalId) clearInterval(crawlingIntervalId);
+// 	process.exit(0);
+// });
 
 // 주기적 크롤링 시작
 const startCrawling = () => {
@@ -92,6 +92,6 @@ const startCrawling = () => {
 const PORT = 3001;
 server.listen(PORT, async () => {
 	console.log(`Server running on http://localhost:${PORT}`);
-	await initializeBrowser(); // 브라우저 초기화
-	startCrawling();
+	// await initializeBrowser(); // 브라우저 초기화
+	// startCrawling();
 });
