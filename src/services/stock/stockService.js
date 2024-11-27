@@ -1,8 +1,40 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const axios = require('axios');
 
 let browser, page; // Puppeteer 브라우저와 페이지를 관리
-
+const getPolygonIoPreviousClose = async () => {
+	try {
+		const response = await axios.get(
+			`https://api.polygon.io/v2/aggs/ticker/TSLA/prev?adjusted=true&apiKey=${process.env.POLYGON_API_KEY}`
+		); // API URL 변경
+		const res_json = response.data;
+		if (res_json.status == 'OK' && res_json.count >= 1) {
+			return res_json.results[0];
+		} else {
+			throw Error;
+		}
+	} catch (error) {
+		console.error('API 호출 중 오류 발생:', error.message);
+		throw Error;
+	}
+};
+const getPolygonIoNews = async () => {
+	try {
+		const response = await axios.get(
+			`https://api.polygon.io/v2/reference/news?ticker=TSLA&order=desc&limit=20&sort=published_utc&apiKey=${process.env.POLYGON_API_KEY}`
+		); // API URL 변경
+		const res_json = response.data;
+		if (res_json.status == 'OK' && res_json.results.length >= 1) {
+			return res_json.results;
+		} else {
+			throw Error;
+		}
+	} catch (error) {
+		console.error('API 호출 중 오류 발생:', error.message);
+		throw Error;
+	}
+};
 const initializeBrowser = async () => {
 	browser = await puppeteer.launch({
 		executablePath: process.env.CHROME_URL,
@@ -77,4 +109,6 @@ module.exports = {
 	initializeBrowser,
 	closeBrowser,
 	crawl,
+	getPolygonIoPreviousClose,
+	getPolygonIoNews,
 };

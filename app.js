@@ -1,17 +1,17 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const { clearInterval } = require('timers');
-
+const schedule = require('node-schedule');
+const stockRoutes = require('./src/routes/stock/stockRoute');
 const chatController = require('./src/services/chat/chatController');
 const countController = require('./src/services/count/countController');
 
 const {
-	initializeBrowser,
-	closeBrowser,
-	crawl,
+	getPolygonIoPreviousClose,
+	getPolygonIoNews,
 } = require('./src/services/stock/stockService');
 require('dotenv').config();
+
 const app = express();
 const server = http.createServer(app); // Express 서버로 HTTP 서버 생성
 const io = new Server(server, {
@@ -22,18 +22,28 @@ const io = new Server(server, {
 	},
 });
 
-// Middleware
-app.use(express.json());
-
 // 접속자 변수
 let currentUserCount = 0;
 let todayUserCount = 0;
 
 // 크롤링 데이터 변수
-let crawlingIntervalId;
-let ioEmitIntervalId;
-const reloadInterval = 5000;
-let stockText = '...';
+
+let stockData = null;
+let news = [];
+schedule.scheduleJob('0 7 * * *', async () => {
+	console.log('아침 7시: API 데이터를 가져옵니다.');
+	stockData = await getPolygonIoPreviousClose();
+	news = await getPolygonIoNews();
+});
+
+app.use(
+	'/stock',
+	(req, res, next) => {
+		req.stockData = stockData;
+		next();
+	},
+	stockRoutes
+);
 // Socket.IO 연결 설정
 io.on('connect', (socket) => {
 	console.log('A user connected:', socket.id);
@@ -60,7 +70,7 @@ io.on('connect', (socket) => {
 	socket.on('disconnect', () => {
 		currentUserCount -= 1;
 		countController.handleCount(socket, io, currentUserCount, todayUserCount);
-		clearInterval(ioEmitIntervalId);
+
 		// 접속 emit
 		io.emit('chat_message', {
 			type: 'disconnect',
@@ -71,27 +81,8 @@ io.on('connect', (socket) => {
 	});
 });
 
-// 컴퓨터 다운시 브라우저 종료 명령어
-// process.on('SIGINT', async () => {
-// 	if (browser) await closeBrowser();
-// 	if (crawlingIntervalId) clearInterval(crawlingIntervalId);
-// 	process.exit(0);
-// });
-
-// 주기적 크롤링 시작
-const startCrawling = () => {
-	crawlingIntervalId = setInterval(async () => {
-		stockObj = await crawl();
-		io.emit('stock_data', stockObj);
-	}, reloadInterval);
-
-	io.on('disconnect', () => clearInterval(crawlingIntervalId));
-};
-
 // 서버 시작
 const PORT = 3001;
 server.listen(PORT, async () => {
 	console.log(`Server running on http://localhost:${PORT}`);
-	// await initializeBrowser(); // 브라우저 초기화
-	// startCrawling();
 });
