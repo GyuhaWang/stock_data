@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app); // Express 서버로 HTTP 서버 생성
 const io = new Server(server, {
 	cors: {
-		// origin: process.env.CORS_URL, // 허용할 클라이언트 도메인
+		origin: process.env.CORS_URL, // 허용할 클라이언트 도메인
 		methods: ['GET', 'POST'], // 허용할 HTTP 메서드
 		credentials: true, // 인증 정보(쿠키 등)를 포함할지 여부
 	},
@@ -1154,7 +1154,7 @@ schedule.scheduleJob('1 4 * * *', async () => {
 app.use(
 	'/stock',
 	(req, res, next) => {
-		res.header('Access-Control-Allow-Origin', 'http://0.0.0.0');
+		res.header('Access-Control-Allow-Origin', process.env.CORS_URL);
 		req.stockData = stockData;
 		req.news = news;
 		next();
