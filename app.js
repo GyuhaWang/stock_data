@@ -28,16 +28,15 @@ let todayUserCount = 0;
 
 // 크롤링 데이터 변수
 const sampleStockData = {
-	status: 'OK',
-	from: '2024-11-25',
-	symbol: 'TSLA',
-	open: 360.14,
-	high: 361.93,
-	low: 338.2,
-	close: 338.59,
-	volume: 91310133,
-	afterHours: 334.41,
-	preMarket: 358.99,
+	T: 'TSLA',
+	v: 57181887,
+	vw: 333.1337,
+	o: 341.8,
+	c: 332.89,
+	h: 342.55,
+	l: 326.59,
+	t: 1732741200000,
+	n: 878126,
 };
 const sampleNewsData = [
 	{
@@ -1144,6 +1143,9 @@ const sampleNewsData = [
 ];
 let stockData = sampleStockData;
 let news = sampleNewsData;
+schedule.scheduleJob('0 0 * * *', async () => {
+	todayUserCount = 0;
+});
 schedule.scheduleJob('1 4 * * *', async () => {
 	stockData = await getPolygonIoPreviousClose();
 	news = await getPolygonIoNews();
@@ -1152,6 +1154,7 @@ schedule.scheduleJob('1 4 * * *', async () => {
 app.use(
 	'/stock',
 	(req, res, next) => {
+		res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
 		req.stockData = stockData;
 		req.news = news;
 		next();
