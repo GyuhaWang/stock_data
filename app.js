@@ -1154,7 +1154,7 @@ schedule.scheduleJob('1 4 * * *', async () => {
 app.use(
 	'/stock',
 	(req, res, next) => {
-		res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+		res.header('Access-Control-Allow-Origin', 'http://0.0.0.0');
 		req.stockData = stockData;
 		req.news = news;
 		next();
